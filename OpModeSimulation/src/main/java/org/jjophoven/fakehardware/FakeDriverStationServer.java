@@ -2,6 +2,7 @@ package org.jjophoven.fakehardware;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.jjophoven.driverstation.OpModeState;
+import org.jjophoven.input.Keybinds;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -19,7 +20,8 @@ public class FakeDriverStationServer {
     private DataOutputStream out;
     private Process process;
 
-    public Gamepad gamepad1 = new Gamepad();
+    public FakeGamepad gamepad1 = new FakeGamepad();
+    public FakeGamepad gamepad2 = new FakeGamepad();
 
     public boolean running = false;
     public boolean clientConnected = false;
@@ -84,21 +86,8 @@ public class FakeDriverStationServer {
                         if (pressed) heldKeys.add(keyCode);
                         else heldKeys.remove(keyCode);
 
-                        gamepad1.dpad_up    = heldKeys.contains(87);
-                        gamepad1.dpad_down  = heldKeys.contains(83);
-                        gamepad1.dpad_left  = heldKeys.contains(65);
-                        gamepad1.dpad_right = heldKeys.contains(68);
-                        gamepad1.a          = heldKeys.contains(10);
-
-                        if (heldKeys.contains(81) && heldKeys.contains(69)) {
-                            gamepad1.right_stick_x = 0; // both cancel out
-                        } else if (heldKeys.contains(81)) {
-                            gamepad1.right_stick_x = -1;
-                        } else if (heldKeys.contains(69)) {
-                            gamepad1.right_stick_x = 1;
-                        } else {
-                            gamepad1.right_stick_x = 0;
-                        }
+                        gamepad1.setFromKeys(heldKeys, new Keybinds());
+                        gamepad2.setFromKeys(heldKeys, new Keybinds());
 
                         break;
 

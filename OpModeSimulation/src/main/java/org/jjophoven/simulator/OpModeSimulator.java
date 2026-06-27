@@ -19,7 +19,8 @@ public class OpModeSimulator {
         FakeHardwareMap fakeHardwareMap = new FakeHardwareMap();
         opMode.hardwareMap = fakeHardwareMap;
         opMode.telemetry = new FakeTelemetry(driverStation);
-        opMode.gamepad1 = new Gamepad();
+        opMode.gamepad1 = driverStation.gamepad1;
+        opMode.gamepad2 = driverStation.gamepad2;
 
         System.out.println(driverStation.state);
 
@@ -34,8 +35,6 @@ public class OpModeSimulator {
         while (driverStation.state == OpModeState.INITIALIZING) {
             driverStation.poll();
 
-            opMode.gamepad1.fromByteArray(driverStation.gamepad1.toByteArray());
-
             fakeHardwareMap.updateHardware();
 
             opMode.init_loop();
@@ -48,7 +47,6 @@ public class OpModeSimulator {
         while (driverStation.state == OpModeState.RUNNING) {
             driverStation.poll();
 
-            opMode.gamepad1.fromByteArray(driverStation.gamepad1.toByteArray());
 
             fakeHardwareMap.updateHardware();
 
