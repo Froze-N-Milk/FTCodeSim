@@ -1,20 +1,23 @@
 package org.jjophoven.driverstation;
 
-import java.io.DataInput;
-import java.io.DataOutput;
+import java.io.*;
 
-public enum OpModeState {
+public enum OpModeState implements Packet {
     WAIT_FOR_INIT,
     INITIALIZING,
-    RUNNING,
-    STOPPED;
+    RUNNING;
 
-    public static OpModeState read(DataInput in) {
-        return EnumIO.readEnum(in, values());
+    @Override
+    public byte getPacketType() {
+        return PacketType.STATE;
     }
 
-    public static void write(DataOutput out, OpModeState state) {
-        EnumIO.writeEnum(out, state);
+    @Override
+    public void write(DataOutputStream out) throws IOException {
+        out.writeByte(ordinal());
+    }
+
+    public static OpModeState read(DataInputStream in) throws IOException {
+        return values()[in.readByte()];
     }
 }
-

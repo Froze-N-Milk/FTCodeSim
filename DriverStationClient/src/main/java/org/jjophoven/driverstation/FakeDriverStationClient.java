@@ -317,7 +317,7 @@ public class FakeDriverStationClient extends JFrame {
                         OpModeInfo sel = (OpModeInfo) opModeCombo.getSelectedItem();
                         if (sel != null) {
                             opModeLabel.setText(sel.toString());
-                            connection.sendSelectedOpMode(sel);
+                            connection.send(sel);
                         }
                     } else {
                         opModeLabel.setText("TeleOp");
@@ -344,7 +344,7 @@ public class FakeDriverStationClient extends JFrame {
                     timerLabel.setForeground(ACCENT_YELLOW);
                     break;
             }
-            connection.sendState(dsState);
+            connection.send(dsState);
             mainButton.repaint();
             stopButton.repaint();
         });
@@ -362,7 +362,7 @@ public class FakeDriverStationClient extends JFrame {
         long secs = elapsed % 60;
         timerLabel.setText(String.format("%d:%02d", mins, secs));
 
-        // Flash red in last 10 s (for a 120 s period — adjust if needed)
+        // Flash red in last 10 s (for a 120 s period)
         timerLabel.setForeground(elapsed >= 110 ? ACCENT_RED : ACCENT_YELLOW);
     }
 
@@ -389,12 +389,12 @@ public class FakeDriverStationClient extends JFrame {
                         }
 
                         if (pressedKeys.add(code)) {
-                            connection.sendKey(code, true);
+                            connection.send(new KeyPacket(code, true));
                         }
 
                     } else if (e.getID() == KeyEvent.KEY_RELEASED) {
                         if (pressedKeys.remove(code)) {
-                            connection.sendKey(code, false);
+                            connection.send(new KeyPacket(code, false));
                         }
                     }
 
@@ -403,10 +403,7 @@ public class FakeDriverStationClient extends JFrame {
     }
 
     public static void main(String[] args) {
-        // TODO send opmodes
         int port = args.length > 0 ? Integer.parseInt(args[0]) : 8080;
-
-        java.util.List<String> opModes = Arrays.asList(args);
 
         SwingUtilities.invokeLater(() -> new FakeDriverStationClient(port));
     }

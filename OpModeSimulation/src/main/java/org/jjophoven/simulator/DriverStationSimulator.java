@@ -2,8 +2,10 @@ package org.jjophoven.simulator;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import org.jjophoven.driverstation.KeyPacket;
 import org.jjophoven.driverstation.OpModeInfo;
 import org.jjophoven.driverstation.OpModeState;
+import org.jjophoven.driverstation.PacketType;
 import org.jjophoven.fakehardware.FakeHardwareMap;
 import org.jjophoven.fakehardware.FakeTelemetry;
 import org.jjophoven.input.Keybinds;
@@ -13,8 +15,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
-
-import static org.jjophoven.driverstation.DriverStationConnection.OPMODE_PACKET;
 
 public class DriverStationSimulator {
     private static final int PORT = 8080;
@@ -107,10 +107,6 @@ public class DriverStationSimulator {
         }
     }
 
-    public static final byte INPUT_TELEMETRY = 1;
-    public static final byte KEY_PACKET = 1;
-    public static final byte STATE_PACKET = 2;
-
     private final Set<Integer> heldKeys = new HashSet<>();
 
     public void update() {
@@ -127,24 +123,23 @@ public class DriverStationSimulator {
         try {
             while (in.available() > 0) {
                 switch (in.readByte()) {
-                    case KEY_PACKET:
-                        int keyCode = in.readInt();
-                        boolean pressed = in.readBoolean();
+                    case PacketType.KEY:
+                        KeyPacket keyPacket = KeyPacket.read(in);
 
-                        System.out.println("KEY: " + keyCode + ", " + (pressed ? "pressed" : "released"));
+                        System.out.println("KEY: " + keyPacket.keyCode + ", " + (keyPacket.down ? "pressed" : "released"));
 
-                        if (pressed) heldKeys.add(keyCode);
-                        else heldKeys.remove(keyCode);
+                        if (keyPacket.down) heldKeys.add(keyPacket.keyCode);
+                        else heldKeys.remove(keyPacket.keyCode);
 
                         gamepad1Keybinds.apply(opMode.gamepad1, heldKeys);
                         gamepad2Keybinds.apply(opMode.gamepad2, heldKeys);
 
                         break;
-
-                    case STATE_PACKET:
-                        this.state = OpModeState.values()[in.readByte()];
+                    case PacketType.STATE:
+                        this.state = OpModeState.read(in);
                         break;
-                    case OPMODE_PACKET:
+                    case PacketType.OPMODE:
+                        System.out.println("RECEIVED OPMODES");
                         OpModeRegister register = new OpModeRegister();
                         OpModeInfo opModeInfo = OpModeInfo.read(in);
                         opMode = register.getOpMode(opModeInfo.name, opModeInfo.group);
@@ -171,7 +166,7 @@ public class DriverStationSimulator {
         }
 
         try {
-            out.writeByte(INPUT_TELEMETRY);
+            out.writeByte(PacketType.TELEMETRY);
             out.writeUTF(data);
             out.flush();
         } catch (IOException ignored) {
@@ -197,7 +192,7 @@ public class DriverStationSimulator {
         }
 
 //        state = OpModeState.STOPPED;
-        state = OpModeState.STOPPED;
+        state = OpModeState.WAIT_FOR_INIT;
 
         log("Driver Station shutdown.");
     }

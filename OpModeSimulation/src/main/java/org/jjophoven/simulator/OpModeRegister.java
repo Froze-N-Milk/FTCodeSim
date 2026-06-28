@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import static org.jjophoven.driverstation.DriverStationConnection.OPMODE_PACKET;
 
 public class OpModeRegister {
     Set<OpMode> autos = new LinkedHashSet<>();
@@ -66,7 +65,7 @@ public class OpModeRegister {
         return null;
     }
 
-    public void writeOpmodes(DataOutputStream out) {
+    public void writeOpmodes(DataOutputStream out) throws IOException {
         List<OpModeInfo> opModes = new ArrayList<>();
 
         for (OpMode opMode : getTeleOpModes()) {
@@ -98,11 +97,7 @@ public class OpModeRegister {
         }
 
         OpModeList opModeList = new OpModeList(opModes);
-        try {
-            out.writeByte(OPMODE_PACKET);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        System.out.println(opModeList);
         opModeList.write(out);
     }
 
