@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmode.base;
 
 import android.annotation.SuppressLint;
-import com.pedropathing.drivetrain.Drivetrain;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.ivy.Scheduler;
-import com.pedropathing.localization.Localizer;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -85,7 +83,7 @@ public abstract class RobotOpMode extends OpMode {
                 voltage / 14.5 * 100,
                 voltage
         ));
-        context.telemetry.addLine("Loop Time: " + String.format("%.3f ms", timer.getSmoothedDt()));
+        context.telemetry.addLine("Loop Time: " + String.format("%.3f ms", timer.getSmoothedDtMs()));
         context.telemetry.addLine("Start Pose: " + pose);
 
         Logger.recordOutput("InitLoop/raw loop time (ms)", timer.getDt());
@@ -114,7 +112,7 @@ public abstract class RobotOpMode extends OpMode {
 
         Logger.periodicBeforeUser();
 
-        Logger.recordOutput("Loop/raw loop time (ms)", timer.getDt());
+        Logger.recordOutput("Loop/raw loop time (ms)", timer.getDtMs());
         Logger.recordOutput("Loop/runtime secs", timer.getRuntime());
         Logger.recordOutput("Robot/battery voltage", voltageSensor.getVoltage());
 

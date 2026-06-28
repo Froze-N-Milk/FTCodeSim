@@ -62,8 +62,12 @@ public class OpModeTimer {
         return dt;
     }
 
-    public double getSmoothedDt() {
-        return smoothedDt;
+    public double getDtMs() {
+        return dt * 1000;
+    }
+
+    public double getSmoothedDtMs() {
+        return smoothedDt * 1000;
     }
 
     public double getInitTime() {
