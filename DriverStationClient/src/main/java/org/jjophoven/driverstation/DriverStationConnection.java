@@ -5,18 +5,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class DriverStationConnection {
-    public static final byte INPUT_TELEMETRY = 1;
-    public static final byte KEY_PACKET = 1;
-    public static final byte STATE_PACKET = 2;
-    public static final byte OPMODE_PACKET = 3;
-
     private final Consumer<String> telemetryConsumer;
     private final Runnable connectedCallback;
     private final Runnable disconnectedCallback;
@@ -62,15 +54,18 @@ public class DriverStationConnection {
         try {
             while (running.get()) {
                 byte type = input.readByte();
-                if (type == INPUT_TELEMETRY) {
-                    String telemetry = input.readUTF();
-                    SwingUtilities.invokeLater(() -> telemetryConsumer.accept(telemetry));
-                }
-                if (type == OPMODE_PACKET) {
-                    opmodes = OpModeList.read(input);
-                    if (opModeListCallback != null) {
+                switch (type) {
+                    case PacketType.TELEMETRY:
+                        String telemetry = input.readUTF();
+                        SwingUtilities.invokeLater(() -> telemetryConsumer.accept(telemetry));
+                        break;
+                    case PacketType.OPMODE:
+                        opmodes = OpModeList.read(input);
+                        for (OpModeInfo info : opmodes.opmodes) {
+                            System.out.println(info.name + " (" + info.group + ")");
+                        }
                         SwingUtilities.invokeLater(() -> opModeListCallback.accept(opmodes));
-                    }
+                        break;
                 }
             }
         } catch (IOException ignored) {
@@ -78,27 +73,10 @@ public class DriverStationConnection {
         }
     }
 
-    public void sendKey(int keyCode, boolean down) {
+    public void send(Packet packet) {
         safe(() -> {
-            output.writeByte(KEY_PACKET);
-            output.writeInt(keyCode);
-            output.writeBoolean(down);
-            output.flush();
-        });
-    }
-
-    public void sendState(OpModeState state) {
-        safe(() -> {
-            output.writeByte(STATE_PACKET);
-            output.writeByte(state.ordinal());
-            output.flush();
-        });
-    }
-
-    public void sendSelectedOpMode(OpModeInfo opmode) {
-        safe(() -> {
-            output.writeByte(OPMODE_PACKET);
-            opmode.write(output);
+            output.writeByte(packet.getPacketType());
+            packet.write(output);
             output.flush();
         });
     }

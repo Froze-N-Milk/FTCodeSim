@@ -2,18 +2,26 @@ package org.jjophoven.driverstation;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpModeList {
+public class OpModeList implements Packet {
     List<OpModeInfo> opmodes;
 
     public OpModeList(List<OpModeInfo> opmodes) {
         this.opmodes = opmodes;
     }
 
-    public void write(DataOutput output) {
+    @Override
+    public byte getPacketType() {
+        return PacketType.OPMODE;
+    }
+
+    @Override
+    public void write(DataOutputStream output) throws IOException {
+        output.writeInt(getPacketType());
         try {
             output.writeInt(opmodes.size());
         } catch (IOException e) {

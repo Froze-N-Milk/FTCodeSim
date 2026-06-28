@@ -1,10 +1,8 @@
 package org.jjophoven.driverstation;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
+import java.io.*;
 
-public class OpModeInfo {
+public class OpModeInfo implements Packet {
     public Type type;
     public String group;
     public String name;
@@ -17,36 +15,29 @@ public class OpModeInfo {
 
     @Override
     public String toString() {
-        if (group == null || group.isEmpty()) return name;
-        return group + " / " + name;
+        return name;
+    }
+
+    @Override
+    public byte getPacketType() {
+        return PacketType.OPMODE;
     }
 
     public enum Type {
-        TELEOP, AUTO;
-
-        public static Type read(DataInput in) {
-            return EnumIO.readEnum(in, values());
-        }
-
-        public static void write(DataOutput out, Type type) {
-            EnumIO.writeEnum(out, type);
-        }
+        TELEOP, AUTO
     }
 
-    public void write(DataOutput output) {
-        try {
-            Type.write(output, type);
-            output.writeUTF(name);
-            output.writeUTF(group);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public void write(DataOutputStream output) throws IOException {
+        output.writeByte(type.ordinal());
+        output.writeUTF(name);
+        output.writeUTF(group);
     }
 
     public static OpModeInfo read(DataInput input) {
         try {
             return new OpModeInfo(
-                    Type.read(input),
+                    Type.values()[input.readByte()],
                     input.readUTF(),
                     input.readUTF()
             );
