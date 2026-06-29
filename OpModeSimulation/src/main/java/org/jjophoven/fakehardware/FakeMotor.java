@@ -7,16 +7,48 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.jjophoven.fit.MotorModel;
 
 public class FakeMotor implements DcMotorEx {
     private double power = 0;
+    public double velocity = 0;
+    private double acceleration = 0;
 
-    public FakeMotor() {
+    MotorModel motorModel;
+    double[] motorModelCoefficients;
+    double staticVelocityRegion;
+    double staticFriction;
+    public String deviceName;
+
+    public FakeMotor(String name, MotorModel motorModel, double[] motorModelCoefficients, double staticVelocityRegion, double staticFriction) {
+        this.deviceName = name;
+        this.motorModel = motorModel;
+        this.motorModelCoefficients = motorModelCoefficients;
+        this.staticVelocityRegion = staticVelocityRegion;
+        this.staticFriction = staticFriction;
     }
 
     @Override
     public void setDirection(Direction direction) {
 
+    }
+
+    public void step(double deltaTime) {
+        acceleration = motorModel.predict(motorModelCoefficients, velocity, power, 13); // TODO get voltage from sensor
+//        if (Math.abs(velocity) < staticVelocityRegion && Math.abs(acceleration) < staticFriction) {
+//            velocity = 0;
+//            acceleration = 0;
+//            return;
+//        }
+        velocity += acceleration * deltaTime;
+    }
+
+    public void setRollVelocity(double velocity) {
+        this.velocity = velocity;
+    }
+
+    public boolean isStationary() {
+        return acceleration == 0 && velocity == 0;
     }
 
     @Override
@@ -32,6 +64,10 @@ public class FakeMotor implements DcMotorEx {
         return power;
     }
 
+    public double getAcceleration() {
+        return acceleration;
+    }
+
     @Override
     public void setMotorEnable() {
 
@@ -39,7 +75,7 @@ public class FakeMotor implements DcMotorEx {
 
     @Override
     public void setMotorDisable() {
-
+        power = 0;
     }
 
     @Override
@@ -59,12 +95,12 @@ public class FakeMotor implements DcMotorEx {
 
     @Override
     public double getVelocity() {
-        return 0;
+        return velocity;
     }
 
     @Override
     public double getVelocity(AngleUnit unit) {
-        return 0;
+        return AngleUnit.RADIANS.fromUnit(unit, velocity);
     }
 
     @Override

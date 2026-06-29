@@ -32,10 +32,12 @@ public class DriverStationSimulator {
     Keybinds gamepad1Keybinds;
     Keybinds gamepad2Keybinds;
     OpModeRegister opModeRegister = new OpModeRegister();
+    SimulationConfig simulationConfig;
 
-    public DriverStationSimulator(Keybinds gamepad1, Keybinds gamepad2) throws IOException, InterruptedException {
-        this.gamepad1Keybinds = gamepad1;
-        this.gamepad2Keybinds = gamepad2;
+    public DriverStationSimulator(SimulationConfig config) throws IOException, InterruptedException {
+        this.gamepad1Keybinds = config.gamepad1Keybinds;
+        this.gamepad2Keybinds = config.gamepad2Keybinds;
+        this.simulationConfig = config;
 
         startServer();
         acceptClient();
@@ -142,10 +144,12 @@ public class DriverStationSimulator {
 
                         opMode.telemetry = new FakeTelemetry(this);
 
-                        fakeHardwareMap = new FakeHardwareMap();
+                        fakeHardwareMap = new FakeHardwareMap(simulationConfig);
                         opMode.hardwareMap = fakeHardwareMap;
                         opMode.gamepad1 = new Gamepad();
                         opMode.gamepad2 = new Gamepad();
+
+                        fakeHardwareMap.initializeHardware();
 
                         break;
                 }

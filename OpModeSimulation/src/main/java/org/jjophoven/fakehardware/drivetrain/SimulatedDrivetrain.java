@@ -2,68 +2,61 @@ package org.jjophoven.fakehardware.drivetrain;
 
 import org.jjophoven.fakehardware.FakeMotor;
 import org.jjophoven.fit.MotorModel;
+import org.psilynx.psikit.core.Logger;
 
 public abstract class SimulatedDrivetrain {
     private final FakeMotor[] motors;
 
     public MotionVector position = new MotionVector(0, 0, 0);
     public MotionVector velocity = new MotionVector(0, 0, 0);
-    public MotionVector acceleration = new MotionVector(0, 0, 0);
 
-    protected double[] motorPowers;
-    protected double[] motorAccelerations;
     protected double[] motorVelocities;
     protected MotorModel model;
     protected double[] coefficients;
-    protected double staticVelocityRegion;
-    protected double staticFriction;
 
-    public SimulatedDrivetrain(FakeMotor[] motors, MotorModel model, double[] coefficients, double staticVelocityRegion, double staticFriction) {
+    public SimulatedDrivetrain(FakeMotor[] motors, MotorModel model, double[] coefficients) {
         this.motors = motors;
 
-        motorPowers = new double[motors.length];
         motorVelocities = new double[motors.length];
-        motorAccelerations = new double[motors.length];
         this.model = model;
         this.coefficients = coefficients;
-        this.staticVelocityRegion = staticVelocityRegion;
-        this.staticFriction = staticFriction;
     }
 
     public void step(double deltaTime) {
-        boolean allWheelsStationary = true;
+        boolean allMotorsStationary = true;
         for (int i = 0; i < motors.length; i++) {
-            double power = motors[i].getPower();
-            double vel = motorVelocities[i];
-            double accel = model.predict(coefficients, vel, power, 13);
-            // TODO get voltage from sensor
+            motors[i].step(deltaTime);
 
-            if (Math.abs(vel) < staticVelocityRegion && Math.abs(accel) < staticFriction) {
-                accel = 0;
-                vel = 0;
-            } else {
-                allWheelsStationary = false;
-                accel = model.predict(coefficients, vel, power, 13);
-                vel += accel * deltaTime;
+            FakeMotor motor = motors[i];
+            motorVelocities[i] = motor.getVelocity();
+
+            Logger.recordOutput("Mecanum/vels/" + motor.deviceName, motor.getVelocity());
+            Logger.recordOutput("Mecanum/powers/" + motor.deviceName, motor.getPower());
+            Logger.recordOutput("Mecanum/accelerations/" + motor.deviceName, motor.getAcceleration());
+
+            if (!motor.isStationary()) {
+                allMotorsStationary = false;
             }
-
-            motorPowers[i] = power;
-            motorVelocities[i] = vel;
-            motorAccelerations[i] = accel;
         }
 
-        acceleration = forwardKinematics(motorAccelerations).toFieldFrame(position.theta);
+        velocity = forwardKinematics(motorVelocities).toFieldFrame(position.theta);
 
-        if (allWheelsStationary) {
+        if (allMotorsStationary) {
             velocity = new MotionVector(0, 0, 0);
-        }
-        else {
-            velocity = velocity.step(acceleration, deltaTime);
         }
 
         position = position.step(velocity, deltaTime);
 
+        MotionVector motionVector = position.plus(velocity);
+        motionVector.log("Mecanum/velocity");
+
+        // Accounts for wheels moving from whole robot moving
         motorVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
+        for (int i = 0; i < motors.length; i++) {
+            motors[i].setRollVelocity(motorVelocities[i]);
+        }
+
+        // TODO maybe make it more accurate by calculating rolling accel?
 
         position.log("Mecanum/pose");
     }

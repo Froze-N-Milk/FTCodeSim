@@ -11,8 +11,8 @@ public class FakeMecanum extends SimulatedDrivetrain {
 
     private final double R;
 
-    public FakeMecanum(FakeMotor[] motors, double[] coefficients, double staticVelocityRegion, double staticFriction, double wheelbase, double trackWidth) {
-        super(motors, MotorModel.fromString("a=Au-Bv*abs(d)-Cv-Dsgn(v)"), coefficients, staticVelocityRegion, staticFriction);
+    public FakeMecanum(FakeMotor[] motors, double[] coefficients, double wheelbase, double trackWidth) {
+        super(motors, MotorModel.fromString("a=Au-Bv*abs(d)-Cv-Dsgn(v)"), coefficients);
 
         R = wheelbase + trackWidth;
     }

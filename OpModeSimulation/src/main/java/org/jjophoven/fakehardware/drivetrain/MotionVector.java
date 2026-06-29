@@ -38,4 +38,8 @@ public class MotionVector {
     public void log(String key) {
         Logger.recordOutput(key, new Pose2d(x, y, new Rotation2d(theta)));
     }
+
+    public MotionVector plus(MotionVector other) {
+        return new MotionVector(this.x + other.x, this.y + other.y, this.theta + other.theta);
+    }
 }
