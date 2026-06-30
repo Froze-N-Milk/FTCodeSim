@@ -12,7 +12,6 @@ public class Mecanum {
     private static final int BL = 1;
     private static final int FR = 2;
     private static final int BR = 3;
-    private boolean manual;
 
     public Mecanum(HardwareMap map) {
         double powerDeadband = 0.01;
@@ -27,10 +26,11 @@ public class Mecanum {
     }
 
     public void driveFieldCentric(double heading, double x, double y, double turn) {
-        double cos = Math.cos(-heading);
-        double sin = Math.sin(-heading);
-        double forward = y * cos - x * sin;
-        double strafe  = y * sin + x * cos;
+        double cos = Math.cos(heading);
+        double sin = Math.sin(heading);
+
+        double forward = x * cos - y * sin;
+        double strafe  = x * sin + y * cos;
 
         drive(forward, strafe, turn);
     }

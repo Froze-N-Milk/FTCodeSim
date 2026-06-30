@@ -26,6 +26,8 @@ each mecanum wheel
 
 
 1. TODO convert everything to inches
+TODO implement gate blocking
+TODO implement alliance perspective driving
 2. TODO add keybinds
 3. TODO verify axis directions
 4. TODO simulate boundaries collisions
@@ -33,4 +35,4 @@ each mecanum wheel
 6. TODO simulate gamepieces, rolling, intaking, colliding, and shooting
 7. TODO Clean up logs and change filepath
 
-TODO clean up client/server code
+TODO driver station UI

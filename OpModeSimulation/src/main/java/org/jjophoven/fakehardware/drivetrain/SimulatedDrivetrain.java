@@ -7,7 +7,7 @@ import org.psilynx.psikit.core.Logger;
 public abstract class SimulatedDrivetrain {
     private final FakeMotor[] motors;
 
-    public MotionVector position = new MotionVector(0, 0, 0);
+    public MotionVector position = new MotionVector(0, 0, 0); // model start heading
     public MotionVector velocity = new MotionVector(0, 0, 0);
 
     protected double[] motorVelocities;

@@ -16,11 +16,11 @@ public class MotionVector {
     }
 
     public MotionVector toFieldFrame(double heading) {
-        return rotate(heading);
+        return rotate(-heading);
     }
 
     public MotionVector toRobotFrame(double heading) {
-        return rotate(-heading);
+        return rotate(heading);
     }
 
     public MotionVector rotate(double heading) {
@@ -36,7 +36,9 @@ public class MotionVector {
     }
 
     public void log(String key) {
-        Logger.recordOutput(key, new Pose2d(x, y, new Rotation2d(theta)));
+        // TODO add coordinate class and also convert from inches to meters
+        Logger.recordOutput(key + "pedro coords", new Pose2d(x, y, new Rotation2d(theta)));
+        Logger.recordOutput(key + "ftc coords", new Pose2d(-y, x, new Rotation2d(theta + Math.PI/2)));
     }
 
     public MotionVector plus(MotionVector other) {

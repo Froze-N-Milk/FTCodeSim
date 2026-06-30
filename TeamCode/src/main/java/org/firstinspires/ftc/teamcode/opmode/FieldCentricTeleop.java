@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.teamcode.Alliance;
 import org.firstinspires.ftc.teamcode.opmode.base.TeleOpMode;
 import org.psilynx.psikit.core.Logger;
 
@@ -12,7 +13,17 @@ public class FieldCentricTeleop extends TeleOpMode {
 
         Logger.recordOutput("heading", localizer.getPose().getHeading());
 
-        drivetrain.driveFieldCentric(localizer.getPose().getHeading(), (gamepad1.dpad_left ? 1 : 0) - (gamepad1.dpad_right ? 1 : 0), (gamepad1.dpad_up ? 1 : 0) - (gamepad1.dpad_down ? 1 : 0), -gamepad1.right_stick_x);
+        double heading = localizer.getPose().getHeading();
+        if (alliance == Alliance.RED) {
+            heading += Math.PI;
+        }
+
+        drivetrain.driveFieldCentric(
+                heading,
+                -gamepad1.left_stick_y,
+                gamepad1.left_stick_x,
+                gamepad1.right_stick_x
+        );
     }
 
     @Override
