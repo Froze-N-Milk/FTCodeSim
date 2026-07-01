@@ -16,11 +16,11 @@ public class MotionVector {
     }
 
     public MotionVector toFieldFrame(double heading) {
-        return rotate(-heading);
+        return rotate(heading);
     }
 
     public MotionVector toRobotFrame(double heading) {
-        return rotate(heading);
+        return rotate(-heading);
     }
 
     public MotionVector rotate(double heading) {
