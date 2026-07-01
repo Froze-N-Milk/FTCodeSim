@@ -77,16 +77,31 @@ public class ModelFitter {
         double[] loopTimes = new double[totalSamples];
 
         int offset = 0;
+        double timeOffset = 0.0;
+        final double GAP_MS = 20; // 20 seconds
+
         for (DataSet d : datasets) {
             int len = d.vels.length;
+
             System.arraycopy(d.vels, 0, vels, offset, len);
             System.arraycopy(d.accels, 0, accels, offset, len);
             System.arraycopy(d.duties, 0, duties, offset, len);
             System.arraycopy(d.batteryVoltages, 0, batteryVoltages, offset, len);
-            System.arraycopy(d.times, 0, times, offset, len);
             System.arraycopy(d.rawVels, 0, rawVels, offset, len);
             System.arraycopy(d.applied, 0, applied, offset, len);
             System.arraycopy(d.loopTimes, 0, loopTimes, offset, len);
+
+            // Shift timestamps so each trial starts 20 s after the previous ends
+            for (int i = 0; i < len; i++) {
+                times[offset + i] = d.times[i] + timeOffset;
+            }
+
+            if (len > 0) {
+                timeOffset += d.times[len - 1] + GAP_MS;
+            } else {
+                timeOffset += GAP_MS;
+            }
+
             offset += len;
         }
 

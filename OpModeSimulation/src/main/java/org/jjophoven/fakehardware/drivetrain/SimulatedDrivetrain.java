@@ -7,19 +7,15 @@ import org.psilynx.psikit.core.Logger;
 public abstract class SimulatedDrivetrain {
     private final FakeMotor[] motors;
 
-    public MotionVector position = new MotionVector(0, 0, 0); // model start heading
+    public MotionVector position = new MotionVector(0, 0, 0);
     public MotionVector velocity = new MotionVector(0, 0, 0);
 
     protected double[] motorAngularVelocities;
-    protected MotorModel model;
-    protected double[] coefficients;
 
-    public SimulatedDrivetrain(FakeMotor[] motors, MotorModel model, double[] coefficients) {
+    public SimulatedDrivetrain(FakeMotor[] motors) {
         this.motors = motors;
 
         motorAngularVelocities = new double[motors.length];
-        this.model = model;
-        this.coefficients = coefficients;
     }
 
     public void step(double deltaTime) {
@@ -30,9 +26,9 @@ public abstract class SimulatedDrivetrain {
             FakeMotor motor = motors[i];
             motorAngularVelocities[i] = motor.getVelocity();
 
-            Logger.recordOutput("Mecanum/angular vels/" + motor.deviceName, motor.getVelocity());
+            Logger.recordOutput("Mecanum/angular vels radians per second/" + motor.deviceName, motor.getVelocity());
             Logger.recordOutput("Mecanum/powers/" + motor.deviceName, motor.getPower());
-            Logger.recordOutput("Mecanum/angular accelerations/" + motor.deviceName, motor.getAcceleration());
+            Logger.recordOutput("Mecanum/angular accelerations radians per second per second/" + motor.deviceName, motor.getAcceleration());
 
             if (!motor.isStationary()) {
                 allMotorsStationary = false;
@@ -49,7 +45,7 @@ public abstract class SimulatedDrivetrain {
 
         velocity.log("Mecanum/velocity");
 
-       //  Accounts for wheels moving from whole robot moving
+        // Accounts for wheels moving from whole robot moving
         motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
         for (int i = 0; i < motors.length; i++) {
             motors[i].setRollVelocity(motorAngularVelocities[i]);

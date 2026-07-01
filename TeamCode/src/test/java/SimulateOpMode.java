@@ -1,3 +1,4 @@
+import com.qualcomm.robotcore.hardware.DcMotor;
 import org.jjophoven.simulator.SimulationConfig;
 import org.jjophoven.fakehardware.drivetrain.MecanumConfig;
 import org.jjophoven.input.Keybinds;
@@ -8,13 +9,6 @@ import java.io.IOException;
 public class SimulateOpMode {
     @Test
     public void test() throws IOException, InterruptedException {
-        // TUNABLE MECANUM CONSTANTS
-        double maxVelocity = 70;
-        double maxAcceleration = 250;
-        double naturalDeceleration = 100;
-
-
-        // Ill clean the rest up later
         SimulationConfig simulationConfig = new SimulationConfig();
 
         MecanumConfig mecanumConfig = new MecanumConfig();
@@ -25,22 +19,13 @@ public class SimulateOpMode {
         mecanumConfig.wheelbase = 4.68504; // half distance from frontLeft wheel to backLeft wheel
         mecanumConfig.trackWidth = 4.56693; // half distance from backRight wheel to backLeft wheel
         mecanumConfig.wheelDiameter = 3.77953;
-        double radius = mecanumConfig.wheelDiameter / 2;
-
-        double maxOmega = maxVelocity / radius;
-        double maxAlpha = maxAcceleration / radius;
-        double naturalAlpha = naturalDeceleration / radius;
-
-        double kA = (maxAlpha + naturalAlpha) / 13;
-        double kBackEMF = maxAlpha / maxOmega;
-
-        mecanumConfig.coefficients =  new double[]{
-                kA, kBackEMF, 0, naturalDeceleration / radius
-        };
-
-        // angular units
-        mecanumConfig.staticVelocityRegion = 2 / radius;
-        mecanumConfig.staticFriction = 45 / radius; // minimum accel to move
+        mecanumConfig.staticVelocityRegion = 2;
+        mecanumConfig.staticFriction = 45;
+        mecanumConfig.maxAcceleration = 250;
+        mecanumConfig.maxVelocity = 70;
+        mecanumConfig.naturalDeceleration = 40;
+        mecanumConfig.zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
+        mecanumConfig.strafeEfficiency = 0.90;
 
         simulationConfig.drivetrain = mecanumConfig;
         simulationConfig.gamepad1Keybinds = new Keybinds();
