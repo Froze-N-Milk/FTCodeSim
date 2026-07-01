@@ -123,6 +123,8 @@ public class DriverStationSimulator {
             while (in.available() > 0) {
                 switch (in.readByte()) {
                     case Packet.KEY:
+                        if (opMode == null) return;
+
                         KeyPacket keyPacket = KeyPacket.read(in);
 
                         System.out.println("KEY: " + keyPacket.keyCode + ", " + (keyPacket.down ? "pressed" : "released"));
