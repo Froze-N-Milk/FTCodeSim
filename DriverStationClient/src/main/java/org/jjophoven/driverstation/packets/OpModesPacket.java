@@ -34,7 +34,7 @@ public class OpModesPacket implements Packet {
     public static OpModesPacket read(DataInputStream input) {
         List<OpModePacket> opmodes = new ArrayList<>();
 
-        int autoCount = 0;
+        int autoCount;
         try {
             autoCount = input.readInt();
         } catch (IOException e) {

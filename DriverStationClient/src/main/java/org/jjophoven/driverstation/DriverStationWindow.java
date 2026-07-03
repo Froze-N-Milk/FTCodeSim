@@ -10,6 +10,7 @@ import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class DriverStationWindow extends JFrame {
@@ -90,7 +91,7 @@ public class DriverStationWindow extends JFrame {
             }
             if (opModeCombo.getItemCount() > 0) {
                 opModeCombo.setSelectedIndex(0);
-                opModeLabel.setText(opModeCombo.getSelectedItem().toString());
+                opModeLabel.setText(Objects.requireNonNull(opModeCombo.getSelectedItem()).toString());
             }
         });
     }
