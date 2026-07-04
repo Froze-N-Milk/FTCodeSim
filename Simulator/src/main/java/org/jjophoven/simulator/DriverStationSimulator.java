@@ -68,6 +68,9 @@ public class DriverStationSimulator {
             FtcLoggingSession psiKit = new FtcLoggingSession();
             psiKit.start(opMode, 5800, "", true, "TeamCode/logs", null, opMode);
 
+            long start = System.nanoTime();
+            Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
+
             opMode.init();
 
             while (state == OpModeState.INITIALIZING) {
