@@ -40,7 +40,7 @@ public class SimVoltageSensor implements VoltageSensor, SimHardwareDevice {
     }
 
     @Override
-    public void update() {
+    public void update(double deltaTime) {
 
     }
 }

@@ -29,8 +29,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
     }
 
     @Override
-    public void update() {
-        double deltaTime = 0.02;
+    public void update(double deltaTime) {
         double voltage = config.voltageSensor.getVoltage();
         if (zeroPowerBehavior == ZeroPowerBehavior.BRAKE && power == 0) {
             acceleration = config.motorModel.predict(config.zeroPowerBrakeCoefficients, velocity, power, voltage);

@@ -21,7 +21,7 @@ public class SimulateTank { // TODO create a way to tag what opmodes are using w
         config.wheelRadius = 1.889765;
         config.staticVelocityRegion = 2;
         config.staticFriction = 45;
-        config.maxAcceleration = 250;
+        config.maxAcceleration = 200;
         config.maxVelocity = 70;
         config.naturalDeceleration = 40;
         config.simHardwareMap = simHardwareMap;

@@ -1,5 +1,5 @@
 package org.jjophoven.simhardware.devices;
 
 public interface SimHardwareDevice {
-    void update();
+    void update(double deltaTime);
 }

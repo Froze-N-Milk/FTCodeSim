@@ -18,7 +18,7 @@ public class SimGobildaPinpoint extends GoBildaPinpointDriver implements SimHard
     }
 
     @Override
-    public void update() {
+    public void update(double deltaTime) {
         pose2D = drivetrain.getPose(); // TODO add optional noise
     }
 

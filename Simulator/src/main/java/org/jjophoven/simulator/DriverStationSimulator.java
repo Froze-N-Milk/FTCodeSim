@@ -18,7 +18,6 @@ import java.util.Set;
 // TODO simulate boundary collisions
 // TODO simulate rolling and colliding game pieces,
 // TODO intake and shoot game pieces (low priority)
-// TODO optimize loop times and make it configurable + fix ascope time lapsed
 // TODO add ascope and default robot models in github releases
 public class DriverStationSimulator {
     private static final int PORT = 8080;
@@ -136,9 +135,14 @@ public class DriverStationSimulator {
 
     private final Set<Integer> heldKeys = new HashSet<>();
 
+    private long previousTime = 0;
+
     public void update() {
         poll();
-        simHardwareMap.update();
+        long currentTime = System.nanoTime();
+        double deltaTime = (currentTime - previousTime) * 1e-9;
+        simHardwareMap.update(deltaTime);
+        previousTime = currentTime;
     }
 
     public void poll() {

@@ -68,18 +68,17 @@ public class SimHardwareMap extends HardwareMap {
         return device;
     }
 
-    public void update() {
-        // TODO add deltaTime here to step and update
-        if (drivetrain != null) {
-            drivetrain.step(0.02);
-        }
+    public void update(double deltaTime) {
         for (List<HardwareDevice> device : allDevicesMap.values()) {
             for (HardwareDevice d : device) {
                 try {
-                    ((SimHardwareDevice) d).update();
+                    ((SimHardwareDevice) d).update(deltaTime);
                 } catch (ClassCastException ignored) {
                 }
             }
+        }
+        if (drivetrain != null) {
+            drivetrain.step(deltaTime);
         }
     }
 }
