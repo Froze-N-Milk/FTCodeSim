@@ -43,6 +43,10 @@ public class SimHardwareMap extends HardwareMap {
                     }
                 }
             }
+            if (result == null) {
+                System.out.println("Could not find device " + deviceName + " of type " + classOrInterface.getSimpleName());
+            }
+
             return result;
         }
     }
@@ -59,6 +63,7 @@ public class SimHardwareMap extends HardwareMap {
     }
 
     public <T extends HardwareDevice> T register(String name, T device) {
+        System.out.println("Registering " + name + " as " + device.getClass().getSimpleName());
         put(name, device);
         return device;
     }

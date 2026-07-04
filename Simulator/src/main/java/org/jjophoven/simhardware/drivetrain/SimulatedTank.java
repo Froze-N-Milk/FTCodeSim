@@ -6,9 +6,9 @@ public class SimulatedTank extends SimulatedDrivetrain {
     private static final int BL = 2;
     private static final int BR = 3;
 
-    private final SimulatedTankConfig config;
+    private final SimTankConfig config;
 
-    public SimulatedTank(SimulatedTankConfig config) {
+    public SimulatedTank(SimTankConfig config) {
         super(config, config.frontLeftMotorName, config.frontRightMotorName, config.backLeftMotorName, config.backRightMotorName);
         this.config = config;
     }

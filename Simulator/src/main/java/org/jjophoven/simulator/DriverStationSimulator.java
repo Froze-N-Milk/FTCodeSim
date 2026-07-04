@@ -6,6 +6,8 @@ import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.simhardware.SimHardwareMap;
 import org.jjophoven.simhardware.devices.SimTelemetry;
 import org.jjophoven.input.Keybinds;
+import org.psilynx.psikit.core.Logger;
+import org.psilynx.psikit.ftc.FtcLoggingSession;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -37,23 +39,25 @@ public class DriverStationSimulator {
     Keybinds gamepad1Keybinds;
     Keybinds gamepad2Keybinds;
     OpModeRegister opModeRegister = new OpModeRegister();
-    SimulationConfig simulationConfig;
+    SimConfig simConfig;
 
-    public DriverStationSimulator(SimulationConfig config) throws IOException, InterruptedException {
+    public DriverStationSimulator(SimConfig config) throws IOException, InterruptedException {
         this.gamepad1Keybinds = config.gamepad1Keybinds;
         this.gamepad2Keybinds = config.gamepad2Keybinds;
-        this.simulationConfig = config;
-        this.simHardwareMap = simulationConfig.simHardwareMap;
+        this.simConfig = config;
+        this.simHardwareMap = simConfig.simHardwareMap;
 
         startServer();
         acceptClient();
+
+        // TODO clean up opmode lifecycle
 
         while (driverStationWindow.isAlive()) {
             System.out.println("Waiting for next opmode...");
 
             while (state == OpModeState.WAIT_FOR_INIT) {
                 poll();
-                Thread.sleep(20);
+                Thread.sleep(config.loopTimeMs);
             }
 
             if (opMode == null || state == null) {
@@ -61,14 +65,20 @@ public class DriverStationSimulator {
                 return;
             }
 
+            FtcLoggingSession psiKit = new FtcLoggingSession();
+            psiKit.start(opMode, 5800, "", true, "TeamCode/logs", null, opMode);
+
             opMode.init();
 
             while (state == OpModeState.INITIALIZING) {
                 update();
 
+                Logger.periodicBeforeUser();
+                psiKit.logOncePerLoop(opMode);
                 opMode.init_loop();
+                Logger.periodicAfterUser(0,0);
 
-                Thread.sleep(20);
+                Thread.sleep(config.loopTimeMs);
             }
 
             opMode.start();
@@ -76,12 +86,16 @@ public class DriverStationSimulator {
             while (state == OpModeState.RUNNING) {
                 update();
 
+                Logger.periodicBeforeUser();
+                psiKit.logOncePerLoop(opMode);
                 opMode.loop();
+                Logger.periodicAfterUser(0,0);
 
-                Thread.sleep(20);
+                Thread.sleep(config.loopTimeMs);
             }
 
             opMode.stop();
+            Logger.end();
         }
     }
 

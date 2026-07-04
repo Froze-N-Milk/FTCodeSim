@@ -1,7 +1,7 @@
 import org.jjophoven.simhardware.SimHardwareMap;
 import org.jjophoven.simhardware.drivetrain.SimulatedMecanum;
-import org.jjophoven.simulator.SimulationConfig;
-import org.jjophoven.simhardware.drivetrain.SimulatedMecanumConfig;
+import org.jjophoven.simulator.SimConfig;
+import org.jjophoven.simhardware.drivetrain.SimMecanumConfig;
 import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
@@ -10,17 +10,16 @@ import java.io.IOException;
 public class SimulateMecanum {
     @Test
     public void test() throws IOException, InterruptedException {
-        SimulationConfig simulationConfig = new SimulationConfig();
         SimHardwareMap simHardwareMap = new SimHardwareMap();
 
-        SimulatedMecanumConfig mecanumConfig = new SimulatedMecanumConfig();
+        SimMecanumConfig mecanumConfig = new SimMecanumConfig();
         mecanumConfig.frontLeftMotorName = "frontLeft";
         mecanumConfig.frontRightMotorName = "frontRight";
         mecanumConfig.backLeftMotorName = "backLeft";
         mecanumConfig.backRightMotorName = "backRight";
-        mecanumConfig.wheelbase = 4.68504 * 2; // distance from center of frontLeft wheel to backLeft wheel
-        mecanumConfig.trackWidth = 4.56693 * 2; // distance from center of backRight wheel to backLeft wheel
-        mecanumConfig.wheelRadius = 3.77953 / 2;
+        mecanumConfig.wheelbase = 9.37008;
+        mecanumConfig.trackWidth = 9.13386;
+        mecanumConfig.wheelRadius = 1.889765;
         mecanumConfig.staticVelocityRegion = 2;
         mecanumConfig.staticFriction = 45;
         mecanumConfig.maxAcceleration = 250;
@@ -30,13 +29,14 @@ public class SimulateMecanum {
         mecanumConfig.simHardwareMap = simHardwareMap;
 
         simHardwareMap.setDrivetrain(new SimulatedMecanum(mecanumConfig));
-
-        simulationConfig.gamepad1Keybinds = new DefaultKeybinds();
-        simulationConfig.gamepad2Keybinds = new DefaultKeybinds();
-        simulationConfig.simHardwareMap = simHardwareMap;
-
         simHardwareMap.pinpoint("pinpoint");
 
-        DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
+        SimConfig simConfig = new SimConfig();
+        simConfig.gamepad1Keybinds = new DefaultKeybinds();
+        simConfig.gamepad2Keybinds = new DefaultKeybinds();
+        simConfig.simHardwareMap = simHardwareMap;
+        simConfig.loopTimeMs = 20;
+
+        DriverStationSimulator driverStation = new DriverStationSimulator(simConfig);
     }
 }

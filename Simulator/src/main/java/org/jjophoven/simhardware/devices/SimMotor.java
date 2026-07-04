@@ -20,6 +20,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
     public SimMotor(SimMotorConfig config) {
         this.config = config;
+        this.deviceName = config.name;
     }
 
     @Override
@@ -169,7 +170,7 @@ public class SimMotor implements DcMotorEx, SimHardwareDevice {
 
     @Override
     public MotorConfigurationType getMotorType() {
-        return null;
+        return new MotorConfigurationType();
     }
 
     @Override

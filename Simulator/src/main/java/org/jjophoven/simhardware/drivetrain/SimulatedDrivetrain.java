@@ -15,11 +15,11 @@ public abstract class SimulatedDrivetrain {
     public MotionVector position = new MotionVector(0, 0, 0);
     public MotionVector velocity = new MotionVector(0, 0, 0);
 
-    public SimulatedDrivetrainConfig config;
+    public SimDrivetrainConfig config;
 
     protected double[] motorAngularVelocities;
 
-    public SimulatedDrivetrain(SimulatedDrivetrainConfig config, String... motorNames) {
+    public SimulatedDrivetrain(SimDrivetrainConfig config, String... motorNames) {
         this.config = config;
         this.motors = new SimMotor[motorNames.length];
         for (int i = 0; i < motorNames.length; i++) {

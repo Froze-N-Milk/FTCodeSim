@@ -2,7 +2,7 @@ package org.jjophoven.simhardware.drivetrain;
 
 import org.jjophoven.simhardware.SimHardwareMap;
 
-public abstract class SimulatedDrivetrainConfig {
+public abstract class SimDrivetrainConfig {
     public SimHardwareMap simHardwareMap;
     public double maxVelocity;
     public double maxAcceleration;

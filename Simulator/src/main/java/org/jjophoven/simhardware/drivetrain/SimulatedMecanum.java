@@ -13,7 +13,7 @@ public class SimulatedMecanum extends SimulatedDrivetrain {
 
     // TODO different decel for strafing
 
-    public SimulatedMecanum(SimulatedMecanumConfig config) {
+    public SimulatedMecanum(SimMecanumConfig config) {
         super(config, config.frontLeftMotorName, config.frontRightMotorName, config.backLeftMotorName, config.backRightMotorName);
 
         R = config.wheelbase / 2 + config.trackWidth / 2;
