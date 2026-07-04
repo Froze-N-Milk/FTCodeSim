@@ -18,13 +18,13 @@ public class SimulateMecanum {
         mecanumConfig.frontRightMotorName = "frontRight";
         mecanumConfig.backLeftMotorName = "backLeft";
         mecanumConfig.backRightMotorName = "backRight";
-        mecanumConfig.wheelbase = 4.68504 * 2; // distance from center of frontLeft wheel to backLeft wheel
-        mecanumConfig.trackWidth = 4.56693 * 2; // distance from center of backRight wheel to backLeft wheel
+        mecanumConfig.wheelbase = 9.5767; // distance from center of frontLeft wheel to backLeft wheel
+        mecanumConfig.trackWidth = 8.66142; // distance from center of backRight wheel to backLeft wheel
         mecanumConfig.wheelRadius = 3.77953 / 2;
         mecanumConfig.staticVelocityRegion = 2;
         mecanumConfig.staticFriction = 45;
         mecanumConfig.maxAcceleration = 250;
-        mecanumConfig.maxVelocity = 70;
+        mecanumConfig.maxVelocity = 89.272;
         mecanumConfig.naturalDeceleration = 40;
         mecanumConfig.strafeEfficiency = 0.90;
         mecanumConfig.fakeHardwareMap = fakeHardwareMap;
