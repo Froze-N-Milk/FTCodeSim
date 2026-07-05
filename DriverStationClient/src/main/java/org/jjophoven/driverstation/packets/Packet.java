@@ -11,4 +11,5 @@ public interface Packet {
     byte KEY = 2;
     byte STATE = 3;
     byte OPMODE = 4;
+    byte CONTROLLER = 5;
 }
