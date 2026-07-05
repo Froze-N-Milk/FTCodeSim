@@ -423,10 +423,11 @@ public class DriverStationWindow extends JFrame {
                     gPadManager.update();
 
                     ControllerState gPad1 = gPadManager.getState(0);
+                    ControllerState gPad2 = gPadManager.getState(1);
 
 
                     connection.send(new ControllerPacket((byte) 0, gPad1));
-                    connection.send(new ControllerPacket((byte) 1, gPadManager.getState(1)));
+                    connection.send(new ControllerPacket((byte) 1, gPad2));
                 }
                 gPadManager.quitSDLGamepad();
             }
