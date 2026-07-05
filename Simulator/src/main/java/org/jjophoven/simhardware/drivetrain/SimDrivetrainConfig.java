@@ -1,0 +1,14 @@
+package org.jjophoven.simhardware.drivetrain;
+
+import org.jjophoven.simhardware.SimHardwareMap;
+
+public abstract class SimDrivetrainConfig {
+    public SimHardwareMap simHardwareMap;
+    public double maxVelocity;
+    public double maxAcceleration;
+    public double naturalDeceleration;
+    public double wheelRadius;
+    public double staticVelocityRegion;
+    public double staticFriction;
+    public double nominalVoltage = 13;
+}

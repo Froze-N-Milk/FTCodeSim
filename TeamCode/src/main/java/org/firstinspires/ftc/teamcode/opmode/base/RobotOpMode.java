@@ -34,8 +34,6 @@ public abstract class RobotOpMode extends OpMode {
 
     OpModeTimer timer = new OpModeTimer();
 
-    private final FtcLoggingSession psiKit = new FtcLoggingSession();
-
     @Override
     public void init() {
         DataSaver.SavedData savedData = DataSaver.load();
@@ -63,7 +61,6 @@ public abstract class RobotOpMode extends OpMode {
 
         drivetrain = new Mecanum(hardwareMap);
 
-        Logger.start();
         Logger.recordMetadata("Init/Teleop", "UtilOpMode");
     }
 
@@ -95,11 +92,10 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public void start() {
-        psiKit.start(this, 5800, "", true, "TeamCode/logs");
-
         timer.start();
         Logger.recordMetadata("Start/Alliance", String.valueOf(alliance));
         Logger.recordMetadata("Start/Pose", String.valueOf(pose));
+
     }
 
     @Override
@@ -110,13 +106,9 @@ public abstract class RobotOpMode extends OpMode {
 
         localizer.update();
 
-        Logger.periodicBeforeUser();
-
         Logger.recordOutput("Loop/raw loop time (ms)", timer.getDtMs());
         Logger.recordOutput("Loop/runtime secs", timer.getRuntime());
         Logger.recordOutput("Robot/battery voltage", voltageSensor.getVoltage());
-
-        Logger.periodicAfterUser(0,0);
     }
 
     @Override

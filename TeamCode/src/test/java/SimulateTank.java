@@ -1,7 +1,7 @@
-import org.jjophoven.fakehardware.FakeHardwareMap;
-import org.jjophoven.fakehardware.drivetrain.FakeTank;
-import org.jjophoven.fakehardware.drivetrain.TankConfig;
-import org.jjophoven.simulator.SimulationConfig;
+import org.jjophoven.simhardware.SimHardwareMap;
+import org.jjophoven.simhardware.drivetrain.SimulatedTank;
+import org.jjophoven.simhardware.drivetrain.SimTankConfig;
+import org.jjophoven.simulator.SimConfig;
 import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
@@ -10,32 +10,31 @@ import java.io.IOException;
 public class SimulateTank { // TODO create a way to tag what opmodes are using which drivetrain
     @Test
     public void test() throws IOException, InterruptedException {
-        SimulationConfig simulationConfig = new SimulationConfig();
+        SimHardwareMap simHardwareMap = new SimHardwareMap();
 
-        FakeHardwareMap fakeHardwareMap = new FakeHardwareMap();
-
-        TankConfig config = new TankConfig();
+        SimTankConfig config = new SimTankConfig();
         config.frontLeftMotorName = "frontLeft";
         config.frontRightMotorName = "frontRight";
         config.backLeftMotorName = "backLeft";
         config.backRightMotorName = "backRight";
-        config.trackWidth = 12; // distance from center of backRight wheel to backLeft wheel
-        config.wheelRadius = 3.77953 / 2;
+        config.trackWidth = 12;
+        config.wheelRadius = 1.889765;
         config.staticVelocityRegion = 2;
         config.staticFriction = 45;
-        config.maxAcceleration = 250;
+        config.maxAcceleration = 200;
         config.maxVelocity = 70;
         config.naturalDeceleration = 40;
-        config.fakeHardwareMap = fakeHardwareMap;
+        config.simHardwareMap = simHardwareMap;
 
-        fakeHardwareMap.setDrivetrain(new FakeTank(config));
+        simHardwareMap.setDrivetrain(new SimulatedTank(config));
+        simHardwareMap.pinpoint("pinpoint");
 
-        simulationConfig.gamepad1Keybinds = new DefaultKeybinds();
-        simulationConfig.gamepad2Keybinds = new DefaultKeybinds();
-        simulationConfig.fakeHardwareMap = fakeHardwareMap;
+        SimConfig simConfig = new SimConfig();
+        simConfig.gamepad1Keybinds = new DefaultKeybinds();
+        simConfig.gamepad2Keybinds = new DefaultKeybinds();
+        simConfig.simHardwareMap = simHardwareMap;
+        simConfig.loopTimeMs = 20;
 
-        fakeHardwareMap.pinpoint("pinpoint");
-
-        DriverStationSimulator driverStation = new DriverStationSimulator(simulationConfig);
+        DriverStationSimulator driverStation = new DriverStationSimulator(simConfig);
     }
 }
