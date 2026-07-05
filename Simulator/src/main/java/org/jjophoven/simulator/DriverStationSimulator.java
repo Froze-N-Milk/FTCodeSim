@@ -2,11 +2,15 @@ package org.jjophoven.simulator;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.jjophoven.driverstation.packets.*;
 import org.jjophoven.simhardware.SimHardwareMap;
 import org.jjophoven.simhardware.devices.SimTelemetry;
 import org.jjophoven.input.Keybinds;
 import org.psilynx.psikit.core.Logger;
+import org.psilynx.psikit.core.wpi.math.Pose2d;
 import org.psilynx.psikit.ftc.FtcLoggingSession;
 
 import java.io.*;
@@ -143,6 +147,11 @@ public class DriverStationSimulator {
         double deltaTime = (currentTime - previousTime) * 1e-9;
         simHardwareMap.update(deltaTime);
         previousTime = currentTime;
+
+        Pose2D pose = simHardwareMap.getDrivetrain().getPose();
+        boolean isOutOfBounds = Boundaries.isOutOfBounds(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), 12, 18, pose.getHeading(AngleUnit.RADIANS));
+        Logger.recordOutput("isInBounds", !isOutOfBounds);
+
     }
 
     public void poll() {

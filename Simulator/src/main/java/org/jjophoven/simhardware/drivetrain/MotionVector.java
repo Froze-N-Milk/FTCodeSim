@@ -42,7 +42,8 @@ public class MotionVector {
 
     public MotionVector toFtcCoords() {
         double inchesPerMeter = 39.37;
-        return new MotionVector(-y / inchesPerMeter, x / inchesPerMeter, theta + Math.PI/2);
+        double halfField = 141.5/2;
+        return new MotionVector(-(y - halfField) / inchesPerMeter, (x - halfField) / inchesPerMeter, theta + Math.PI/2);
     }
 
     public Pose2d toPose2d() {

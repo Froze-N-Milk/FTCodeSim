@@ -30,7 +30,7 @@ public abstract class SimulatedDrivetrain {
     }
 
     public Pose2D getPose() {
-        return new Pose2D(DistanceUnit.MM,
+        return new Pose2D(DistanceUnit.INCH,
                 position.x,
                 position.y,
                 AngleUnit.RADIANS,
@@ -56,6 +56,8 @@ public abstract class SimulatedDrivetrain {
         SimMotorConfig motorConfig = new SimMotorConfig(name, MotorModel.fromString("a=Au-Bv*abs(d)-Cv-Dsgn(v)"), motorCoefficients, zeroPowerBrakeCoefficients, config.staticVelocityRegion/config.wheelRadius, config.staticFriction/config.wheelRadius, (SimVoltageSensor) config.simHardwareMap.voltageSensor.iterator().next());
         return config.simHardwareMap.motor(motorConfig);
     }
+
+    // TODO setVelocity for collisions
 
     public void step(double deltaTime) {
         boolean allMotorsStationary = true;
