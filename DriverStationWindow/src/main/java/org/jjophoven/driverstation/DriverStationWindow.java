@@ -1,5 +1,9 @@
 package org.jjophoven.driverstation;
 
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
+
+import org.jjophoven.driverstation.packets.ControllerPacket;
 import org.jjophoven.driverstation.packets.KeyPacket;
 import org.jjophoven.driverstation.packets.OpModePacket;
 import org.jjophoven.driverstation.packets.OpModeState;
@@ -117,6 +121,7 @@ public class DriverStationWindow extends JFrame {
         add(buildBottomBar(),  BorderLayout.SOUTH);
 
         applyKeyDispatcher();
+        pollGamepad();
         setVisible(true);
     }
 
@@ -381,6 +386,9 @@ public class DriverStationWindow extends JFrame {
     private void applyKeyDispatcher() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(e -> {
+                    if (this.dsState != OpModeState.RUNNING && this.dsState != OpModeState.INITIALIZING) {
+                        return false;
+                    }
                     if (e.isConsumed()) return false;
 
                     int code = e.getKeyCode();
@@ -403,6 +411,28 @@ public class DriverStationWindow extends JFrame {
 
                     return false;
                 });
+    }
+
+    private void pollGamepad() {
+        Thread gPadThread = new Thread(
+            () -> {
+                ControllerManager gPadManager = new ControllerManager();
+                gPadManager.initSDLGamepad();
+
+                while (this.dsState == OpModeState.RUNNING || this.dsState == OpModeState.INITIALIZING) {
+                    gPadManager.update();
+
+                    ControllerState gPad1 = gPadManager.getState(0);
+                    ControllerState gPad2 = gPadManager.getState(1);
+
+
+                    connection.send(new ControllerPacket((byte) 0, gPad1));
+                    connection.send(new ControllerPacket((byte) 1, gPad2));
+                }
+                gPadManager.quitSDLGamepad();
+            }
+        );
+        gPadThread.start();
     }
 
     public static void main(String[] args) {

@@ -168,6 +168,20 @@ public class DriverStationSimulator {
                         gamepad2Keybinds.apply(opMode.gamepad2, heldKeys);
 
                         break;
+                    case Packet.CONTROLLER:
+                        if (opMode == null) return;
+                        ByteArrayOutputStream gPadData = new ByteArrayOutputStream();
+                        if (in.readByte() == 0) {
+                            for (int i = 0; i < 65; i++) {
+                                gPadData.write(in.readByte());
+                            }
+                            opMode.gamepad1.fromByteArray(gPadData.toByteArray());
+                        } else if (in.readByte() == 1) {
+                            for (int i = 0; i < 65; i++) {
+                                gPadData.write(in.readByte());
+                            }
+                            opMode.gamepad2.fromByteArray(gPadData.toByteArray());
+                        }
                     case Packet.STATE:
                         this.state = OpModeState.read(in);
                         break;
