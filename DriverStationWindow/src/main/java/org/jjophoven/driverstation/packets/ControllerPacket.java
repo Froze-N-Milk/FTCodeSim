@@ -32,8 +32,8 @@ public class ControllerPacket implements Packet {
             buffer.putFloat(state.leftTrigger);
             buffer.putFloat(state.rightTrigger);
 
-            buttons = buttons << 1 + (state.leftStickClick ? 1 : 0);
-            buttons = buttons << 1 + (state.rightStickClick ? 1 : 0);
+            buttons = (buttons << 1) + (state.leftStickClick ? 1 : 0);
+            buttons = (buttons << 1) + (state.rightStickClick ? 1 : 0);
             buttons = (buttons << 1) + (state.dpadUp ? 1 : 0);
             buttons = (buttons << 1) + (state.dpadDown ? 1 : 0);
             buttons = (buttons << 1) + (state.dpadLeft ? 1 : 0);
