@@ -9,11 +9,11 @@ public abstract class Keybinds {
 
     abstract Gamepad keybinds(Gamepad keybinds);
 
-    public void apply(Gamepad g,  Set<Integer> keys) {
+    public byte[] getByteArray(Set<Integer> keys) {
         this.keys = keys;
         Gamepad changes = new Gamepad();
         changes = keybinds(changes);
-        g.fromByteArray(changes.toByteArray());
+        return changes.toByteArray();
     }
     public float joystick(int positiveKeyCode, int negativeKeyCode) {
         return ((this.keys.contains(positiveKeyCode) ? 1 : 0) - (this.keys.contains(negativeKeyCode) ? 1 : 0));

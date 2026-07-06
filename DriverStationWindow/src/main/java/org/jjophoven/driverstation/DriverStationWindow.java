@@ -30,7 +30,7 @@ public class DriverStationWindow extends JFrame {
     private static final Color TEXT_MUTED    = new Color(0x88, 0x88, 0x88);
     private static final Color BORDER_COLOR  = new Color(0x3A, 0x3A, 0x3A);
 
-    private volatile OpModeState dsState = OpModeState.WAIT_FOR_INIT;
+    private volatile OpModeState state = OpModeState.WAIT_FOR_INIT;
 
     private JTextArea telemetryArea;
     private JLabel statusLabel;
@@ -294,7 +294,7 @@ public class DriverStationWindow extends JFrame {
     }
 
     private void onMainButton() {
-        switch (dsState) {
+        switch (state) {
             case WAIT_FOR_INIT:
                 transitionTo(OpModeState.INITIALIZING);
                 break;
@@ -312,7 +312,7 @@ public class DriverStationWindow extends JFrame {
     }
 
     private void transitionTo(OpModeState next) {
-        dsState = next;
+        state = next;
         SwingUtilities.invokeLater(() -> {
             switch (next) {
                 case INITIALIZING:
@@ -352,7 +352,7 @@ public class DriverStationWindow extends JFrame {
                     timerLabel.setForeground(ACCENT_YELLOW);
                     break;
             }
-            connection.send(dsState);
+            connection.send(state);
             mainButton.repaint();
             stopButton.repaint();
         });
@@ -386,7 +386,7 @@ public class DriverStationWindow extends JFrame {
     private void applyKeyDispatcher() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(e -> {
-                    if (this.dsState != OpModeState.RUNNING && this.dsState != OpModeState.INITIALIZING) {
+                    if (this.state != OpModeState.RUNNING && this.state != OpModeState.INITIALIZING) {
                         return false;
                     }
                     if (e.isConsumed()) return false;
@@ -419,7 +419,7 @@ public class DriverStationWindow extends JFrame {
                 ControllerManager gPadManager = new ControllerManager();
                 gPadManager.initSDLGamepad();
 
-                while (this.dsState == OpModeState.RUNNING || this.dsState == OpModeState.INITIALIZING) {
+                while (this.state == OpModeState.RUNNING || this.state == OpModeState.INITIALIZING) {
                     gPadManager.update();
 
                     ControllerState gPad1 = gPadManager.getState(0);

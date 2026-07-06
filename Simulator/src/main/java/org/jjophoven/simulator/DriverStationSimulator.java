@@ -1,5 +1,8 @@
 package org.jjophoven.simulator;
 
+import android.os.Build;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -19,13 +22,13 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.Set;
 
-// TODO simulate boundary collisions
 // TODO simulate rolling and colliding game pieces,
 // TODO intake and shoot game pieces (low priority)
-// TODO add ascope and default robot models in github releases
+// TODO modify ascope state for less user setup
+// add default code blooded robot models?
+// automatically download and open ascope on run?
 public class DriverStationSimulator {
     private static final int PORT = 8080;
-    private static final int SOCKET_TIMEOUT_MS = 9999999;
 
     private ServerSocket listener;
     private Socket clientSocket;
@@ -37,79 +40,106 @@ public class DriverStationSimulator {
 
     public OpModeState state = OpModeState.WAIT_FOR_INIT;
 
-    OpMode opMode;
     SimHardwareMap simHardwareMap;
     Keybinds gamepad1Keybinds;
     Keybinds gamepad2Keybinds;
     OpModeRegister opModeRegister = new OpModeRegister();
-    SimConfig simConfig;
+    SimConfig config;
+    FtcLoggingSession psiKit;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public DriverStationSimulator(SimConfig config) throws IOException, InterruptedException {
         this.gamepad1Keybinds = config.gamepad1Keybinds;
         this.gamepad2Keybinds = config.gamepad2Keybinds;
-        this.simConfig = config;
-        this.simHardwareMap = simConfig.simHardwareMap;
+        this.config = config;
+        this.simHardwareMap = this.config.simHardwareMap;
 
         startServer();
         acceptClient();
 
-        // TODO clean up opmode lifecycle
-
         while (driverStationWindow.isAlive()) {
-            System.out.println("Waiting for next opmode...");
-
-            while (state == OpModeState.WAIT_FOR_INIT) {
-                poll();
-                Thread.sleep(config.loopTimeMs);
+            OpMode selectedOpMode = waitForOpModeInit();
+            if (selectedOpMode == null) {
+                break;
             }
-
-            if (opMode == null || state == null) {
-                close();
-                return;
-            }
-
-            FtcLoggingSession psiKit = new FtcLoggingSession();
-            psiKit.start(opMode, 5800, "", true, "TeamCode/logs", null, opMode);
-
-            long start = System.nanoTime();
-            Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
-
-            opMode.init();
-
-            while (state == OpModeState.INITIALIZING) {
-                update();
-
-                Logger.periodicBeforeUser();
-                psiKit.logOncePerLoop(opMode);
-                opMode.init_loop();
-                Logger.periodicAfterUser(0,0);
-
-                Thread.sleep(config.loopTimeMs);
-            }
-
-            opMode.start();
-
-            while (state == OpModeState.RUNNING) {
-                update();
-
-                Logger.periodicBeforeUser();
-                psiKit.logOncePerLoop(opMode);
-                opMode.loop();
-                Logger.periodicAfterUser(0,0);
-
-                Thread.sleep(config.loopTimeMs);
-            }
-
-            opMode.stop();
-            Logger.end();
+            runOpMode(selectedOpMode);
         }
+    }
+
+    public void runOpMode(OpMode opMode) throws InterruptedException {
+        opMode.telemetry = new SimTelemetry(this);
+        opMode.hardwareMap = simHardwareMap;
+        opMode.gamepad1 = new Gamepad();
+        opMode.gamepad2 = new Gamepad();
+
+        psiKit = new FtcLoggingSession();
+        psiKit.start(opMode, 5800, "", true, "sim-logs", null, opMode);
+
+        long start = System.nanoTime();
+        Logger.setTimeSource(() -> (System.nanoTime() - start) * 1e-9);
+
+        opMode.init();
+
+        while (state == OpModeState.INITIALIZING) {
+            wrap(opMode::init_loop, opMode, psiKit);
+        }
+
+        opMode.start();
+
+        while (state == OpModeState.RUNNING) {
+            psiKit.logOncePerLoop(opMode);
+            wrap(opMode::loop, opMode, psiKit);
+        }
+
+        opMode.stop();
+        Logger.end();
+    }
+
+    public @Nullable OpMode waitForOpModeInit() throws IOException, InterruptedException {
+        OpMode selectedOpMode = null;
+        while (in.available() > 0) {
+            switch (in.readByte()) {
+                case Packet.STATE:
+                    this.state = OpModeState.read(in);
+                    if (this.state == null) {
+                        close();
+                        return null;
+                    }
+                    if (this.state == OpModeState.INITIALIZING) {
+                        return selectedOpMode;
+                    }
+                    break;
+                case Packet.OPMODE:
+                    OpModePacket packet = OpModePacket.read(in);
+                    selectedOpMode = opModeRegister.getOpMode(packet);
+                    break;
+            }
+        }
+        Thread.sleep(config.loopTimeMs);
+        return waitForOpModeInit();
+    }
+
+    public void wrap(Runnable runnable, OpMode opMode, FtcLoggingSession loggingSession) throws InterruptedException {
+        Gamepads gamepads = updateDSInput();
+        if (gamepads != null) {
+            opMode.gamepad1.fromByteArray(gamepads.gamepad1);
+            opMode.gamepad2.fromByteArray(gamepads.gamepad2);
+        }
+        updateHardware();
+
+        Logger.periodicBeforeUser();
+        loggingSession.logOncePerLoop(opMode);
+
+        runnable.run();
+
+        Logger.periodicAfterUser(0,0);
+        Thread.sleep(config.loopTimeMs);
     }
 
     public void startServer() throws IOException {
         log("Connecting to Fake Driver Station on port " + PORT);
 
         listener = new ServerSocket(PORT);
-        listener.setSoTimeout(SOCKET_TIMEOUT_MS);
 
         driverStationWindow = startDriverStationProcess();
 
@@ -141,15 +171,14 @@ public class DriverStationSimulator {
 
     private long previousTime = 0;
 
-    public void update() {
-        poll();
+    public void updateHardware() {
         long currentTime = System.nanoTime();
         double deltaTime = (currentTime - previousTime) * 1e-9;
         simHardwareMap.update(deltaTime);
         previousTime = currentTime;
 
         Pose2D pose = simHardwareMap.getDrivetrain().getActualPose();
-        RobotGeometry robot = simConfig.robotGeometry;
+        RobotGeometry robot = config.robotGeometry;
         MotionVector currentPose = new MotionVector(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), pose.getHeading(AngleUnit.RADIANS));
         boolean isOutOfBounds = FieldBoundary.isOutOfBounds(currentPose, robot);
 
@@ -177,18 +206,23 @@ public class DriverStationSimulator {
 
     }
 
-    public void poll() {
+    static public class Gamepads {
+        byte[] gamepad1;
+        byte[] gamepad2;
+    }
+
+    public Gamepads updateDSInput() {
         if (!driverStationWindow.isAlive()) {
             close();
-            return;
+            return null;
         }
+
+        Gamepads gamepads = null;
 
         try {
             while (in.available() > 0) {
                 switch (in.readByte()) {
                     case Packet.KEY:
-                        if (opMode == null) return;
-
                         KeyPacket keyPacket = KeyPacket.read(in);
 
                         System.out.println("KEY: " + keyPacket.keyCode + ", " + (keyPacket.down ? "pressed" : "released"));
@@ -196,45 +230,57 @@ public class DriverStationSimulator {
                         if (keyPacket.down) heldKeys.add(keyPacket.keyCode);
                         else heldKeys.remove(keyPacket.keyCode);
 
-                        gamepad1Keybinds.apply(opMode.gamepad1, heldKeys);
-                        gamepad2Keybinds.apply(opMode.gamepad2, heldKeys);
+                        // Note: edge detection does not work over multiple keys
+                        gamepads = new Gamepads();
+                        gamepads.gamepad1 = gamepad1Keybinds.getByteArray(heldKeys);
+                        gamepads.gamepad2 = gamepad2Keybinds.getByteArray(heldKeys);
 
                         break;
                     case Packet.CONTROLLER:
-                        if (opMode == null) return;
                         ByteArrayOutputStream gPadData = new ByteArrayOutputStream();
+                        gamepads = new Gamepads();
                         if (in.readByte() == 0) {
                             for (int i = 0; i < 65; i++) {
                                 gPadData.write(in.readByte());
                             }
-                            opMode.gamepad1.fromByteArray(gPadData.toByteArray());
+                            gamepads.gamepad1 = gPadData.toByteArray();
+                            if (gamepads.gamepad2 == null) {
+                                gamepads.gamepad2 = new Gamepad().toByteArray();
+                            }
                         } else if (in.readByte() == 1) {
                             for (int i = 0; i < 65; i++) {
                                 gPadData.write(in.readByte());
                             }
-                            opMode.gamepad2.fromByteArray(gPadData.toByteArray());
+                            gamepads.gamepad2 = gPadData.toByteArray();
+                            if (gamepads.gamepad1 == null) {
+                                gamepads.gamepad1 = new Gamepad().toByteArray();
+                            }
                         }
                     case Packet.STATE:
                         this.state = OpModeState.read(in);
                         break;
                     case Packet.OPMODE:
-                        System.out.println("RECEIVED OPMODES");
+                        System.out.println("RECEIVED OPMODE");
                         OpModePacket packet = OpModePacket.read(in);
-                        opMode = opModeRegister.getOpMode(packet);
-
-                        opMode.telemetry = new SimTelemetry(this);
-
-                        opMode.hardwareMap = simHardwareMap;
-                        opMode.gamepad1 = new Gamepad();
-                        opMode.gamepad2 = new Gamepad();
+//                        opMode = opModeRegister.getOpMode(packet);
+//
+//                        opMode.telemetry = new SimTelemetry(this);
+//
+//                        opMode.hardwareMap = simHardwareMap;
+//                        opMode.gamepad1 = new Gamepad();
+//                        opMode.gamepad2 = new Gamepad();
 
                         break;
                 }
             }
+
+
         } catch (IOException e) {
             log("Error updating Fake DS" + e);
             close();
         }
+
+        return gamepads;
     }
 
     public void sendTelemetry(String data) {
@@ -269,9 +315,9 @@ public class DriverStationSimulator {
         }
 
         state = null;
-        if (opMode != null) {
-            opMode.stop();
-        }
+//        if (opMode != null) {
+//            opMode.stop();
+//        }
 
         log("Driver Station shutdown.");
     }
