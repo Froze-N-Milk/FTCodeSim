@@ -1,7 +1,5 @@
 package org.jjophoven.simhardware.drivetrain;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.jjophoven.simhardware.devices.SimMotor;
 import org.jjophoven.simhardware.devices.SimVoltageSensor;
@@ -97,8 +95,8 @@ public abstract class SimulatedDrivetrain {
         this.position = position;
     }
 
-    public void setVelocity(MotionVector velocity) {
-        this.velocity = velocity;
+    public void setLinearVel(MotionVector velocity) {
+        this.velocity = new MotionVector(velocity.x, velocity.y, this.velocity.theta);
         // Accounts for wheels moving from whole robot moving
         motorAngularVelocities = inverseKinematics(velocity.toRobotFrame(position.theta));
         for (int i = 0; i < motors.length; i++) {

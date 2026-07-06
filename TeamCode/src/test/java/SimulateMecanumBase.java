@@ -1,5 +1,6 @@
 import org.jjophoven.simhardware.SimHardwareMap;
 import org.jjophoven.simhardware.drivetrain.SimulatedMecanum;
+import org.jjophoven.simulator.RobotGeometry;
 import org.jjophoven.simulator.SimConfig;
 import org.jjophoven.simhardware.drivetrain.SimMecanumConfig;
 import org.jjophoven.input.DefaultKeybinds;
@@ -7,7 +8,7 @@ import org.jjophoven.simulator.DriverStationSimulator;
 import org.junit.Test;
 import java.io.IOException;
 
-public class SimulateMecanum {
+public class SimulateMecanumBase {
     @Test
     public void test() throws IOException, InterruptedException {
         SimHardwareMap simHardwareMap = new SimHardwareMap();
@@ -17,8 +18,8 @@ public class SimulateMecanum {
         mecanumConfig.frontRightMotorName = "frontRight";
         mecanumConfig.backLeftMotorName = "backLeft";
         mecanumConfig.backRightMotorName = "backRight";
-        mecanumConfig.wheelbase = 9.37008;
-        mecanumConfig.trackWidth = 9.13386;
+        mecanumConfig.wheelbase = 16;
+        mecanumConfig.trackWidth = 16;
         mecanumConfig.wheelRadius = 1.889765;
         mecanumConfig.staticVelocityRegion = 2;
         mecanumConfig.staticFriction = 45;
@@ -36,6 +37,7 @@ public class SimulateMecanum {
         simConfig.gamepad2Keybinds = new DefaultKeybinds();
         simConfig.simHardwareMap = simHardwareMap;
         simConfig.loopTimeMs = 20;
+        simConfig.robotGeometry = new RobotGeometry(18, 18, 0, 0);
 
         DriverStationSimulator driverStation = new DriverStationSimulator(simConfig);
     }

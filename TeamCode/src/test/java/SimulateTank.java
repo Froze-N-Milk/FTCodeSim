@@ -1,6 +1,7 @@
 import org.jjophoven.simhardware.SimHardwareMap;
 import org.jjophoven.simhardware.drivetrain.SimulatedTank;
 import org.jjophoven.simhardware.drivetrain.SimTankConfig;
+import org.jjophoven.simulator.RobotGeometry;
 import org.jjophoven.simulator.SimConfig;
 import org.jjophoven.input.DefaultKeybinds;
 import org.jjophoven.simulator.DriverStationSimulator;
@@ -17,7 +18,7 @@ public class SimulateTank { // TODO create a way to tag what opmodes are using w
         config.frontRightMotorName = "frontRight";
         config.backLeftMotorName = "backLeft";
         config.backRightMotorName = "backRight";
-        config.trackWidth = 12;
+        config.trackWidth = 16;
         config.wheelRadius = 1.889765;
         config.staticVelocityRegion = 2;
         config.staticFriction = 45;
@@ -34,6 +35,7 @@ public class SimulateTank { // TODO create a way to tag what opmodes are using w
         simConfig.gamepad2Keybinds = new DefaultKeybinds();
         simConfig.simHardwareMap = simHardwareMap;
         simConfig.loopTimeMs = 20;
+        simConfig.robotGeometry = new RobotGeometry(18, 18, 0, 0);
 
         DriverStationSimulator driverStation = new DriverStationSimulator(simConfig);
     }

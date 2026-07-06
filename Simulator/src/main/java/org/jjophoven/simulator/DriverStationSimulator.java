@@ -149,12 +149,30 @@ public class DriverStationSimulator {
         previousTime = currentTime;
 
         Pose2D pose = simHardwareMap.getDrivetrain().getActualPose();
-        boolean isOutOfBounds = Boundaries.isOutOfBounds(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), 12, 16, pose.getHeading(AngleUnit.RADIANS));
+        RobotGeometry robot = simConfig.robotGeometry;
+        MotionVector currentPose = new MotionVector(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), pose.getHeading(AngleUnit.RADIANS));
+        boolean isOutOfBounds = FieldBoundary.isOutOfBounds(currentPose, robot);
+
         if (isOutOfBounds) {
-            Boundaries.Point closest = Boundaries.closestInBoundsPosition(pose.getX(DistanceUnit.INCH), pose.getY(DistanceUnit.INCH), 12, 16, pose.getHeading(AngleUnit.RADIANS));
-            simHardwareMap.getDrivetrain().setPosition(new MotionVector(closest.x, closest.y, pose.getHeading(AngleUnit.RADIANS)));
+            MotionVector closest = FieldBoundary.closestInBoundsPosition(currentPose, robot);
+
+            MotionVector correctionDir = currentPose.minus(closest);
+
+            if (correctionDir.magnitude() > 1e-6) {
+
+                MotionVector normal = correctionDir.unitVector();
+
+                MotionVector velocity = simHardwareMap.getDrivetrain().velocity;
+
+                double vOut = velocity.dot(normal);
+
+                MotionVector correctedVelocity = velocity.minus(normal.scale(vOut));
+
+                simHardwareMap.getDrivetrain().setPosition(closest);
+                simHardwareMap.getDrivetrain().setLinearVel(correctedVelocity);
+            }
         }
-        // velocity.project(-direction is out of bounds)
+
         Logger.recordOutput("isInBounds", !isOutOfBounds);
 
     }

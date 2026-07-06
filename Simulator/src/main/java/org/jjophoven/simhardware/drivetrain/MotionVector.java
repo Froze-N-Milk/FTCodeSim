@@ -18,6 +18,46 @@ public class MotionVector {
         this.theta = heading;
     }
 
+    public MotionVector(double x, double y) {
+        this.x = x;
+        this.y = y;
+        this.theta = 0;
+    }
+
+    public double dot(MotionVector other) {
+        return this.x * other.x + this.y * other.y;
+    }
+
+    public MotionVector scale(double scalar) {
+        return new MotionVector(x * scalar, y * scalar, theta);
+    }
+
+    public double magnitude() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    public MotionVector unitVector() {
+        double mag = magnitude();
+        return new MotionVector(x / mag, y / mag, 0);
+    }
+
+    public MotionVector projectOnto(MotionVector direction) {
+        double magSq = direction.x * direction.x + direction.y * direction.y;
+
+        if (magSq < 1e-9) {
+            return new MotionVector(0, 0, 0);
+        }
+
+        double dot = this.x * direction.x + this.y * direction.y;
+        double scale = dot / magSq;
+
+        return new MotionVector(
+                direction.x * scale,
+                direction.y * scale,
+                0
+        );
+    }
+
     public MotionVector toFieldFrame(double heading) {
         return rotate(heading);
     }
@@ -63,5 +103,13 @@ public class MotionVector {
 
     public MotionVector plus(MotionVector other) {
         return new MotionVector(this.x + other.x, this.y + other.y, this.theta + other.theta);
+    }
+
+    public MotionVector minus(MotionVector other) {
+        return new MotionVector(this.x - other.x, this.y - other.y, this.theta - other.theta);
+    }
+
+    public MotionVector zeroHeading() {
+        return new MotionVector(this.x, this.y, 0);
     }
 }

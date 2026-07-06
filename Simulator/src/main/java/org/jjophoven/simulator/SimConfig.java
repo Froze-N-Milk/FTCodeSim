@@ -12,4 +12,6 @@ public class SimConfig {
 
     public Keybinds gamepad1Keybinds = new DefaultKeybinds();
     public Keybinds gamepad2Keybinds = new DefaultKeybinds();
+
+    public RobotGeometry robotGeometry;
 }
