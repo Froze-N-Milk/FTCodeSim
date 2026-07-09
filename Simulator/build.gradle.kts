@@ -8,7 +8,7 @@ repositories {
     maven("https://www.jitpack.io")
 }
 
-android.namespace = "org.jjophoven"
+android.namespace = "org.codeblooded"
 
 dairyPublishing {
     gitDir = file("..")

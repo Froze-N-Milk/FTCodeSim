@@ -29,16 +29,18 @@ Make sure you set it to the right field selected.
 
 4. Run `TeamCode/src/test/java/SimulateMecanumBase` and press init and start.
 
-4. Then drag fields you want to graph/visualize
+5. Then drag fields you want to graph/visualize
 
 <img width="1162" height="942" alt="image" src="https://github.com/user-attachments/assets/53f83d85-935d-4d3e-95d8-ec1b36ff4a02" />
 
 # Looking for help with
 - Anyone interested in collaborating or working on a similar project
 - Ball physics and collision detection
+- Make advantage scope setup easier by modifying json state
 - Improving the Driver Station UI
 - New features or ideas
-- Packaging/distribution (Gradle plugin, library, installer, etc.)
-- Better project architecture or module organization
+- Packaging/distribution
+- Local controller input support
+- Driver practice support with inhaling, shooting, and scoring
 
 ![img.png](keymap.png)

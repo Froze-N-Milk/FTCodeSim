@@ -31,11 +31,11 @@ publishing {
 }
 
 application {
-    mainClass = "org.jjophoven.driverstation.DriverStationWindow"
+    mainClass = "org.codeblooded.driverstation.DriverStationWindow"
 }
 
 java {
     manifest {
-        attributes["Main-Class"] = "org.jjophoven.driverstation.DriverStationWindow"
+        attributes["Main-Class"] = "org.codeblooded.driverstation.DriverStationWindow"
     }
 }
