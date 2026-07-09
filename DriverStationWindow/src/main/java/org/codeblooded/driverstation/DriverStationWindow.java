@@ -1,9 +1,9 @@
 package org.codeblooded.driverstation;
 
-import com.studiohartman.jamepad.ControllerManager;
-import com.studiohartman.jamepad.ControllerState;
+//import com.studiohartman.jamepad.ControllerManager;
+//import com.studiohartman.jamepad.ControllerState;
 
-import org.codeblooded.driverstation.packets.ControllerPacket;
+//import org.codeblooded.driverstation.packets.ControllerPacket;
 import org.codeblooded.driverstation.packets.KeyPacket;
 import org.codeblooded.driverstation.packets.OpModePacket;
 import org.codeblooded.driverstation.packets.OpModeState;
@@ -414,25 +414,25 @@ public class DriverStationWindow extends JFrame {
     }
 
     private void pollGamepad() {
-        Thread gPadThread = new Thread(
-            () -> {
-                ControllerManager gPadManager = new ControllerManager();
-                gPadManager.initSDLGamepad();
-
-                while (this.state == OpModeState.RUNNING || this.state == OpModeState.INITIALIZING) {
-                    gPadManager.update();
-
-                    ControllerState gPad1 = gPadManager.getState(0);
-                    ControllerState gPad2 = gPadManager.getState(1);
-
-
-                    connection.send(new ControllerPacket((byte) 0, gPad1));
-                    connection.send(new ControllerPacket((byte) 1, gPad2));
-                }
-                gPadManager.quitSDLGamepad();
-            }
-        );
-        gPadThread.start();
+//        Thread gPadThread = new Thread(
+//            () -> {
+//                ControllerManager gPadManager = new ControllerManager();
+//                gPadManager.initSDLGamepad();
+//
+//                while (this.state == OpModeState.RUNNING || this.state == OpModeState.INITIALIZING) {
+//                    gPadManager.update();
+//
+//                    ControllerState gPad1 = gPadManager.getState(0);
+//                    ControllerState gPad2 = gPadManager.getState(1);
+//
+//
+//                    connection.send(new ControllerPacket((byte) 0, gPad1));
+//                    connection.send(new ControllerPacket((byte) 1, gPad2));
+//                }
+//                gPadManager.quitSDLGamepad();
+//            }
+//        );
+//        gPadThread.start();
     }
 
     public static void main(String[] args) {
