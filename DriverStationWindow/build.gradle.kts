@@ -17,7 +17,7 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
-            groupId = "ord.codeblooded"
+            groupId = "org.codeblooded"
             artifactId = "DriverStationWindow"
 
             artifact(dairyDoc.dokkaJavadocJar)
