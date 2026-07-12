@@ -471,7 +471,6 @@ public class DriverStationWindow extends JFrame {
 
                     if (gPad1.isConnected) {
                         if (!gamepad1Connected) {
-                            gamepad1Connected = true;
                             System.out.println("Connected Gamepad 1: " + gPad1.controllerType);
                         }
                         connection.send(new ControllerPacket((byte) 0, gPad1));
@@ -480,11 +479,17 @@ public class DriverStationWindow extends JFrame {
 
                     if (gPad2.isConnected) {
                         if (!gamepad2Connected) {
-                            gamepad2Connected = true;
                             System.out.println("Connected Gamepad 2: " + gPad2.controllerType);
                         }
                         connection.send(new ControllerPacket((byte) 1, gPad2));
                     }
+
+                    gamepad1Connected = gPad1.isConnected;
+                    gamepad2Connected = gPad2.isConnected;
+                    SwingUtilities.invokeLater(() -> {
+                        gamepad1Label.setVisible(gamepad1Connected);
+                        gamepad2Label.setVisible(gamepad2Connected);
+                    });
                 }
                 System.out.println("Gamepad thread exiting");
                 gPadManager.quitSDLGamepad();
