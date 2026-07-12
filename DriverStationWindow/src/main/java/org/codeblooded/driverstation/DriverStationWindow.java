@@ -125,6 +125,9 @@ public class DriverStationWindow extends JFrame {
         setVisible(true);
     }
 
+    private JLabel gamepad1Label;
+    private JLabel gamepad2Label;
+
     private JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout(8, 0));
         bar.setBackground(BG_PANEL);
@@ -144,7 +147,28 @@ public class DriverStationWindow extends JFrame {
         connectionLabel.setOpaque(false);
 
         bar.add(title, BorderLayout.WEST);
-        bar.add(connectionLabel, BorderLayout.EAST);
+//        bar.add(connectionLabel, BorderLayout.EAST);
+
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        right.setOpaque(false);
+
+        gamepad1Label = new JLabel("\uD83C\uDFAE"); // 🎮
+        gamepad1Label.setForeground(TEXT_MUTED);
+        gamepad1Label.setVisible(false);
+
+        gamepad2Label = new JLabel("\uD83C\uDFAE");
+        gamepad2Label.setForeground(TEXT_MUTED);
+        gamepad2Label.setVisible(false);
+
+        connectionLabel = new JLabel("● DISCONNECTED");
+        connectionLabel.setFont(new Font("Dialog", Font.BOLD, 12));
+        connectionLabel.setForeground(ACCENT_RED);
+
+        right.add(gamepad1Label);
+        right.add(gamepad2Label);
+        right.add(connectionLabel);
+
+        bar.add(right, BorderLayout.EAST);
         return bar;
     }
 
@@ -313,6 +337,15 @@ public class DriverStationWindow extends JFrame {
 
     private void transitionTo(OpModeState next) {
         state = next;
+        if (opModeCombo != null && opModeCombo.getItemCount() > 0) {
+            OpModePacket sel = (OpModePacket) opModeCombo.getSelectedItem();
+            if (sel != null) {
+                System.out.println("Running OpMode " + sel.name);
+                connection.send(sel);
+            }
+        }
+        connection.send(next);
+        System.out.println("Transitioning to " + next);
         SwingUtilities.invokeLater(() -> {
             switch (next) {
                 case INITIALIZING:
@@ -325,7 +358,7 @@ public class DriverStationWindow extends JFrame {
                         OpModePacket sel = (OpModePacket) opModeCombo.getSelectedItem();
                         if (sel != null) {
                             opModeLabel.setText(sel.toString());
-                            connection.send(sel);
+                            //connection.send(sel);
                         }
                     } else {
                         opModeLabel.setText("TeleOp");
@@ -352,7 +385,6 @@ public class DriverStationWindow extends JFrame {
                     timerLabel.setForeground(ACCENT_YELLOW);
                     break;
             }
-            connection.send(state);
             mainButton.repaint();
             stopButton.repaint();
         });
@@ -413,22 +445,48 @@ public class DriverStationWindow extends JFrame {
                 });
     }
 
+    boolean gamepad1Connected = false;
+    boolean gamepad2Connected = false;
+
     private void pollGamepad() {
         Thread gPadThread = new Thread(
             () -> {
+                System.out.println("Gamepad thread started");
                 ControllerManager gPadManager = new ControllerManager();
                 gPadManager.initSDLGamepad();
 
-                while (this.state == OpModeState.RUNNING || this.state == OpModeState.INITIALIZING) {
+                while (this.state != null) {
                     gPadManager.update();
 
+                    if (this.state == OpModeState.WAIT_FOR_INIT) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        continue;
+                    }
+
                     ControllerState gPad1 = gPadManager.getState(0);
+
+                    if (gPad1.isConnected) {
+                        if (!gamepad1Connected) {
+                            gamepad1Connected = true;
+                            System.out.println("Connected Gamepad 1: " + gPad1.controllerType);
+                        }
+                        connection.send(new ControllerPacket((byte) 0, gPad1));
+                    }
                     ControllerState gPad2 = gPadManager.getState(1);
 
-
-                    connection.send(new ControllerPacket((byte) 0, gPad1));
-                    connection.send(new ControllerPacket((byte) 1, gPad2));
+                    if (gPad2.isConnected) {
+                        if (!gamepad2Connected) {
+                            gamepad2Connected = true;
+                            System.out.println("Connected Gamepad 2: " + gPad2.controllerType);
+                        }
+                        connection.send(new ControllerPacket((byte) 1, gPad2));
+                    }
                 }
+                System.out.println("Gamepad thread exiting");
                 gPadManager.quitSDLGamepad();
             }
         );

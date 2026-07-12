@@ -11,6 +11,10 @@ public class ControllerPacket implements Packet {
     public final byte[] state;
     public final byte gPadID;
 
+    public float removeDrift(float stick) {
+        return Math.abs(stick) < 0.01 ? 0.0f : stick;
+    }
+
     public ControllerPacket(byte gPadID, ControllerState state) {
         ByteBuffer buffer = ByteBuffer.allocate(65);
         this.gPadID = gPadID;
@@ -25,12 +29,12 @@ public class ControllerPacket implements Packet {
             buffer.putInt(0);
             buffer.putLong(System.currentTimeMillis());
 
-            buffer.putFloat(state.leftStickX);
-            buffer.putFloat(state.rightStickY);
-            buffer.putFloat(state.leftStickX);
-            buffer.putFloat(state.rightStickY);
-            buffer.putFloat(state.leftTrigger);
-            buffer.putFloat(state.rightTrigger);
+            buffer.putFloat(removeDrift(state.leftStickX));
+            buffer.putFloat(removeDrift(-state.leftStickY));
+            buffer.putFloat(removeDrift(state.rightStickX));
+            buffer.putFloat(removeDrift(-state.rightStickY));
+            buffer.putFloat(removeDrift(state.leftTrigger));
+            buffer.putFloat(removeDrift(state.rightTrigger));
 
             buttons = (buttons << 1) + (state.leftStickClick ? 1 : 0);
             buttons = (buttons << 1) + (state.rightStickClick ? 1 : 0);
@@ -67,7 +71,6 @@ public class ControllerPacket implements Packet {
     }
 
     @Override
-
     public void write(DataOutputStream out) throws IOException {
         out.write(gPadID);
         for (byte b : state) {

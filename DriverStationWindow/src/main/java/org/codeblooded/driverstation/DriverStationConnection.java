@@ -68,6 +68,7 @@ public class DriverStationConnection {
                         for (OpModePacket info : opmodes.opmodes) {
                             System.out.print(", " + info.name);
                         }
+                        System.out.println();
                         SwingUtilities.invokeLater(() -> opModeListCallback.accept(opmodes));
                         break;
                 }

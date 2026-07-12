@@ -46,7 +46,7 @@ public class FTCodeSim {
     SimConfig config;
     FtcLoggingSession psiKit;
 
-    // TODO create a way to select from multiply "simulated" robots
+    // TODO create a way to select from multiple "simulated" robots
     @RequiresApi(api = Build.VERSION_CODES.O)
     public FTCodeSim(SimConfig config) throws IOException {
         this.gamepad1Keybinds = config.gamepad1Keybinds;
@@ -274,8 +274,10 @@ public class FTCodeSim {
                                 gamepads.gamepad1 = new Gamepad().toByteArray();
                             }
                         }
+                        break;
                     case Packet.STATE:
                         this.state = OpModeState.read(in);
+                        System.out.println("RECEIVED STATE: " + this.state);
                         break;
                     case Packet.OPMODE:
                         System.out.println("RECEIVED OPMODE");
@@ -384,7 +386,8 @@ public class FTCodeSim {
         File gradlew = new File(projectRoot, isWindows() ? "gradlew.bat" : "gradlew");
         Process buildProcess = new ProcessBuilder(
                 gradlew.getAbsolutePath(),
-                ":DriverStationWindow:build"
+//                ":DriverStationWindow:build"
+                ":DriverStationWindow:shadowJar"
         )
                 .directory(projectRoot)
                 .redirectErrorStream(true)

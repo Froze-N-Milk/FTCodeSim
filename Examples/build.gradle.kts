@@ -22,6 +22,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     // no version means it will get the local version
     implementation("org.codeblooded:Simulator")
+    implementation("org.codeblooded:DriverStationWindow")
+
     implementation("com.pedropathing:core:2.1.2")
     //implementation("com.pedropathing:telemetry:2.1.2")
     implementation("com.pedropathing:ftc:2.1.2")

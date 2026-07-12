@@ -16,7 +16,7 @@ public abstract class Keybinds {
         return changes.toByteArray();
     }
     public float joystick(int positiveKeyCode, int negativeKeyCode) {
-        return ((this.keys.contains(positiveKeyCode) ? 1 : 0) - (this.keys.contains(negativeKeyCode) ? 1 : 0));
+        return joystick(positiveKeyCode, negativeKeyCode, false);
     }
     public float joystick(int positiveKeyCode, int negativeKeyCode, boolean reverse) {
         int reverseMultiplier = reverse ? -1 : 1;
